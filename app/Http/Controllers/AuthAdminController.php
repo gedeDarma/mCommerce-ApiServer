@@ -6,12 +6,20 @@ use App\Http\Requests\RegisterAuthRequest;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
+use Config;
 use App\Admin;
 
 class AuthAdminController extends Controller
 {
     //
     public $loginAfterSignUp = false;
+
+    public function __construct()
+    {
+        Config::set('auth.defaults.guard', 'api_admin');
+        Config::set('auth.defaults.passwords', 'admins');
+    }
+    
 
     /*
     |-------------------------------------------------------------------------------
@@ -23,7 +31,7 @@ class AuthAdminController extends Controller
     | Header:           Accept:application/json
     | Body(Form Data):  Name:Gede Darma, Email:de.darma.damuh@gmail.com, Password:darma@123
     */
-	  public function register(RegisterAuthRequest $request)
+	public function register(RegisterAuthRequest $request)
     {        
         $admin = new Admin();
         $admin->name = $request->name;
@@ -70,6 +78,14 @@ class AuthAdminController extends Controller
             'message' => 'User admin logged in successfully',
             'data' => array(['token' => $jwt_token]),
         ], 200);
+
+        // $credentials = $request->only('email', 'password');
+
+        // if ($token = $this->guard()->attempt($credentials)) {
+        //     return $this->respondWithToken($token);
+        // }
+
+        // return response()->json(['error' => 'Unauthorized'], 401);
     }
 
     /*
@@ -80,16 +96,18 @@ class AuthAdminController extends Controller
     | Method:           POST
     | Description:      Logout user admin from the application
     | Header:           Accept:application/json
-    | Param:            Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
+    | Authorization:    Bearer Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
     */
     public function logout(Request $request)
     {
-        $this->validate($request, [
-            'token' => 'required'
-        ]);
+        // $this->validate($request, [
+        //     'token' => 'required'
+        // ]);
+
+        $token = JWTAuth::getToken();
  
         try {
-            JWTAuth::invalidate($request->token);
+            JWTAuth::invalidate($token);
             return response()->json([
                 'status' => (['code' => '200','type' => 'Ok']),
                 'message' => 'User admin logged out successfully',
@@ -98,9 +116,36 @@ class AuthAdminController extends Controller
         } catch (JWTException $exception) {
             return response()->json([
                 'status' => (['code' => '500','type' => 'Internal server error']),
-                'message' => 'Sorry, the user cannot be logged out',
+                'message' => 'Sorry, the user admin cannot be logged out',
                 'data' => '',
             ], 500);
         }
+    }
+
+    /*
+    |-------------------------------------------------------------------------------
+    | Get Profile of Authorized User
+    |-------------------------------------------------------------------------------
+    | URL:              /api/admin_profile
+    | Method:           GET
+    | Description:      Get profile authorized user
+    | Header:           Accept:application/json
+    | Authorization:    Bearer Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
+    */
+    public function getProfile()
+    {
+        if(!$admin = JWTAuth::parseToken()->authenticate()) {
+            return response()->json([
+                'status' => (['code' => '500','type' => 'Internal server error']),
+                'message' => 'User not found',
+                'data' => '',
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => (['code' => '200','type' => 'Ok']),
+            'message' => '',
+            'data' => array(['UserAdmin' => $admin]),
+        ], 200);
     }
 }

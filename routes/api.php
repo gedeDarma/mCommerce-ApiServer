@@ -20,16 +20,19 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //ROUTE FOR USER
 Route::post('user_register', 'AuthController@register');
 Route::post('user_login', 'AuthController@login');
-Route::group(['middleware' => 'jwt.auth'], function () {
+Route::group(['middleware' => 'auth:api'], function () {
     Route::get('user_logout', 'AuthController@logout'); 
-    Route::get('user', 'AuthController@getAuthUser');
+    Route::get('user_profile', 'AuthController@getProfile');
+    Route::get('user_update_profile', 'AuthController@updateProfile');
+    
 });
 
 //ROUTE FOR ADMIN
 Route::post('admin_register', 'AuthAdminController@register');
 Route::post('admin_login', 'AuthAdminController@login');
-Route::group(['middleware' => 'jwt.auth'], function () {
-    Route::get('admin_logout', 'AuthAdminController@logout'); 
+Route::group(['middleware' => 'auth:api_admin'], function () {
+    Route::get('admin_profile', 'AuthAdminController@getProfile'); 
+    Route::get('admin_logout', 'AuthAdminController@logout');
 });
 
 //Product Routes

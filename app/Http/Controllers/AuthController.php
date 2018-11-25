@@ -6,12 +6,19 @@ use App\Http\Requests\RegisterAuthRequest;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
-use App\User;
+use App\User;   
+use Config;
 
 class AuthController extends Controller
 {
     //
     public $loginAfterSignUp = false;
+
+    public function __construct()
+    {
+        Config::set('auth.defaults.guard', 'api');
+        Config::set('auth.defaults.passwords', 'users');
+    }
 
     /*
     |-------------------------------------------------------------------------------
@@ -70,6 +77,14 @@ class AuthController extends Controller
             'message' => 'User logged in successfully',
             'data' => array(['token' => $jwt_token]),
         ], 200);
+
+        // $credentials = $request->only('email', 'password');
+
+        // if ($token = $this->guard()->attempt($credentials)) {
+        //     return $this->respondWithToken($token);
+        // }
+
+        // return response()->json(['error' => 'Unauthorized'], 401);
     }
 
     /*
@@ -77,19 +92,21 @@ class AuthController extends Controller
     | User Logout
     |-------------------------------------------------------------------------------
     | URL:              /api/logout
-    | Method:           POST
+    | Method:           GET
     | Description:      Logout user from the application
     | Header:           Accept:application/json
-    | Param:            Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
+    | Authorization:    Bearer Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
     */
-    public function logout(Request $request)
+    public function logout()
     {
-        $this->validate($request, [
-            'token' => 'required'
-        ]);
+        // $this->validate($request, [
+        //     'token' => 'required'
+        // ]);
+
+        $token = JWTAuth::getToken();
  
         try {
-            JWTAuth::invalidate($request->token);
+            JWTAuth::invalidate($token);
             return response()->json([
                 'status' => (['code' => '200','type' => 'Ok']),
                 'message' => 'User logged out successfully',
@@ -104,18 +121,54 @@ class AuthController extends Controller
         }
     }
 
-    public function getAuthUser(Request $request)
+    /*
+    |-------------------------------------------------------------------------------
+    | Get Profile of Authorized User
+    |-------------------------------------------------------------------------------
+    | URL:              /api/user_profile
+    | Method:           GET
+    | Description:      Get profile authorized user
+    | Header:           Accept:application/json
+    | Authorization:    Bearer Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
+    */
+    public function getProfile()
     {
-        $this->validate($request, [
-            'token' => 'required'
-        ]);
- 
-        $user = JWTAuth::authenticate($request->token); 
+        // $this->validate($request, [
+        //     'token' => 'required'
+        // ]); 
+        // $user = JWTAuth::authenticate($request->token); 
 
+        $user = JWTAuth::parseToken()->authenticate();
         return response()->json([
             'status' => (['code' => '200','type' => 'Ok']),
             'message' => '',
             'data' => array(['user' => $user]),
         ], 200);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $product = $this->user->products()->find($id);
+ 
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, product with id ' . $id . ' cannot be found'
+            ], 400);
+        }
+    
+        $updated = $product->fill($request->all())
+            ->save();
+    
+        if ($updated) {
+            return response()->json([
+                'success' => true
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, product could not be updated'
+            ], 500);
+        }
     }
 }
