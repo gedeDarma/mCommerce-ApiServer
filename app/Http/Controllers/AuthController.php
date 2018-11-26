@@ -16,8 +16,8 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        Config::set('auth.defaults.guard', 'api');
-        Config::set('auth.defaults.passwords', 'users');
+        // Config::set('auth.defaults.guard', 'api');
+        // Config::set('auth.defaults.passwords', 'users');
     }
 
     /*

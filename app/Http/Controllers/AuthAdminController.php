@@ -134,7 +134,14 @@ class AuthAdminController extends Controller
     */
     public function getProfile()
     {
-        if(!$admin = JWTAuth::parseToken()->authenticate()) {
+        try {
+            $admin = JWTAuth::parseToken()->authenticate();
+            return response()->json([
+                'status' => (['code' => '200','type' => 'Ok']),
+                'message' => '',
+                'data' => array(['UserAdmin' => $admin]),
+            ], 200);
+        } catch (JWTException $exception) {
             return response()->json([
                 'status' => (['code' => '500','type' => 'Internal server error']),
                 'message' => 'User not found',
@@ -142,10 +149,6 @@ class AuthAdminController extends Controller
             ], 500);
         }
 
-        return response()->json([
-            'status' => (['code' => '200','type' => 'Ok']),
-            'message' => '',
-            'data' => array(['UserAdmin' => $admin]),
-        ], 200);
+        
     }
 }
