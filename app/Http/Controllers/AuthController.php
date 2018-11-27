@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterAuthRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
@@ -146,7 +147,17 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function updateProfile(Request $request)
+    /*
+    |-------------------------------------------------------------------------------
+    | Update Profile of Authorized User
+    |-------------------------------------------------------------------------------
+    | URL:              /api/user_update_profile
+    | Method:           PUT
+    | Description:      Update profile of authorized user
+    | Header:           Accept:application/json, Content-Type:application/x-www-form-urlencoded 
+    | Authorization:    Bearer Token:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9tLWNvbW1lcmNlLnRlc3RcL2FwaVwvbG9naW4iLCJpYXQiOjE1NDI2ODk5MDAsImV4cCI6MTU0MjY5MzUwMCwibmJmIjoxNTQyNjg5OTAwLCJqdGkiOiI4eXU3OE9jQTF6eWx4VEtqIiwic3ViIjoxLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.l9YC02EwGop_saZK2t5PuBp5bV5i3pgIJZs836-RNWE        
+    */
+    public function updateProfile(UpdateProfileRequest $request)
     {
         try {
             $userAuthorized = JWTAuth::parseToken()->authenticate();
