@@ -151,4 +151,34 @@ class AuthAdminController extends Controller
 
         
     }
+
+    public function updateProfile(Request $request, $id)
+    {
+        try {
+            $userAuthorized = JWTAuth::parseToken()->authenticate();
+            $user = Admin::findOrFail($id);
+            $updated = $user->update($request->only(['name', 'phone', 'address', 'photo']));
+            
+            if ($updated) {
+                return response()->json([
+                    'status' => (['code' => '200','type' => 'Ok']),
+                    'message' => 'Update successfully',
+                    'data' => $user,
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => (['code' => '500','type' => 'Internal server error']),
+                    'message' => 'Update failed',
+                    'data' => '',
+                ], 500);
+            }        
+        } catch (JWTException $exception) {
+            return response()->json([
+                'status' => (['code' => '500','type' => 'Internal server error']),
+                'message' => 'User not authorized',
+                'data' => '',
+            ], 500);
+        }
+
+    }
 }
