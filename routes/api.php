@@ -23,7 +23,7 @@ Route::post('user_login', 'AuthController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user_logout', 'AuthController@logout'); 
     Route::get('user_profile', 'AuthController@getProfile');
-    Route::get('user_update_profile', 'AuthController@updateProfile');
+    Route::put('user_update_profile', 'AuthController@updateProfile');
 });
 
 //ROUTE FOR ADMIN
@@ -32,6 +32,7 @@ Route::post('admin_login', 'AuthAdminController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('admin_profile', 'AuthAdminController@getProfile'); 
     Route::get('admin_logout', 'AuthAdminController@logout');
+    Route::put('admin_update_profile', 'AuthController@updateProfile');
 });
 
 //Product Routes

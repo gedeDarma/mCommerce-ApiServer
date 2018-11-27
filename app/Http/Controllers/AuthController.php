@@ -148,27 +148,31 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $product = $this->user->products()->find($id);
- 
-        if (!$product) {
+        try {
+            $userAuthorized = JWTAuth::parseToken()->authenticate();
+            
+            $updated = $userAuthorized->update($request->only(['name', 'phone', 'address', 'photo']));
+            
+            if ($updated) {
+                return response()->json([
+                    'status' => (['code' => '200','type' => 'Ok']),
+                    'message' => 'Update successfully',
+                    'data' => $userAuthorized,
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => (['code' => '500','type' => 'Internal server error']),
+                    'message' => 'Update failed',
+                    'data' => '',
+                ], 500);
+            }        
+        } catch (JWTException $exception) {
             return response()->json([
-                'success' => false,
-                'message' => 'Sorry, product with id ' . $id . ' cannot be found'
-            ], 400);
-        }
-    
-        $updated = $product->fill($request->all())
-            ->save();
-    
-        if ($updated) {
-            return response()->json([
-                'success' => true
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sorry, product could not be updated'
+                'status' => (['code' => '500','type' => 'Internal server error']),
+                'message' => 'User not authorized',
+                'data' => '',
             ], 500);
         }
+
     }
 }
