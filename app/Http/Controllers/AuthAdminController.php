@@ -151,19 +151,18 @@ class AuthAdminController extends Controller
 
         
     }
-
-    public function updateProfile(Request $request, $id)
+    public function updateProfile(Request $request)
     {
         try {
             $userAuthorized = JWTAuth::parseToken()->authenticate();
-            $user = Admin::findOrFail($id);
-            $updated = $user->update($request->only(['name', 'phone', 'address', 'photo']));
+            
+            $updated = $userAuthorized->update($request->only(['name', 'phone', 'address', 'photo']));
             
             if ($updated) {
                 return response()->json([
                     'status' => (['code' => '200','type' => 'Ok']),
                     'message' => 'Update successfully',
-                    'data' => $user,
+                    'data' => $userAuthorized,
                 ], 200);
             } else {
                 return response()->json([
@@ -179,6 +178,5 @@ class AuthAdminController extends Controller
                 'data' => '',
             ], 500);
         }
-
     }
 }
