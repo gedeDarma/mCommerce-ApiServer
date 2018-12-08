@@ -17,8 +17,8 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        // Config::set('auth.defaults.guard', 'api');
-        // Config::set('auth.defaults.passwords', 'users');
+        Config::set('auth.defaults.guard', 'api');
+        Config::set('auth.defaults.passwords', 'users');
     }
 
     /*
@@ -31,7 +31,7 @@ class AuthController extends Controller
     | Header:           Accept:application/json
     | Body(Form Data):  Name:Gede Darma, Email:de.darma.damuh@gmail.com, Password:darma@123
     */
-	  public function register(RegisterAuthRequest $request)
+	public function register(RegisterAuthRequest $request)
     {        
         $user = new User();
         $user->name = $request->name;

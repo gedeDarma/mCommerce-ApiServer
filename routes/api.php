@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 //ROUTE FOR USER
 Route::post('user_register', 'AuthController@register');
@@ -32,7 +32,7 @@ Route::post('admin_login', 'AuthAdminController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('admin_logout', 'AuthAdminController@logout');
     Route::get('admin_profile', 'AuthAdminController@getProfile'); 
-    Route::put('admin_update_profile', 'AuthController@updateProfile');
+    Route::put('admin_update_profile', 'AuthAdminController@updateProfile');
 });
 
 //Product Routes

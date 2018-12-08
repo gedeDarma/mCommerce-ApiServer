@@ -20,7 +20,6 @@ class AuthAdminController extends Controller
         Config::set('auth.defaults.guard', 'api_admin');
         Config::set('auth.defaults.passwords', 'admins');
     }
-    
 
     /*
     |-------------------------------------------------------------------------------
