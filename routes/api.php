@@ -24,6 +24,9 @@ Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user_logout', 'AuthController@logout'); 
     Route::get('user_profile', 'AuthController@getProfile');
     Route::put('user_update_profile', 'AuthController@updateProfile');
+
+    //Category Routes
+    Route::apiResource('categories', 'CategoryController');
 });
 
 //ROUTE FOR ADMIN
@@ -43,7 +46,7 @@ Route::put('products/{product}', 'ProductController@update');
 Route::delete('products/{product}', 'ProductController@destroy');
 
 //Category Routes
-Route::apiResource('categories', 'CategoryController');
+//Route::apiResource('categories', 'CategoryController');
 Route::get('categories/{category}', 'CategoryController@show');
 Route::post('categories', 'CategoryController@store');
 Route::put('categories/{category}', 'CategoryController@update');
